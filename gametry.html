@@ -56,7 +56,6 @@
 			var bound2=getbound($elem2);
 				vr=ismiddle(bound1.top,bound2.top,bound1.down)||ismiddle(bound1.top,bound2.down,bound1.down)||(ismiddle(bound2.top,bound1.top,bound2.down)&&ismiddle(bound2.top,bound1.down,bound2.down));
 				hr=ismiddle(bound1.left,bound2.left,bound1.right)||ismiddle(bound1.left,bound2.right,bound1.right)||(ismiddle(bound2.left,bound1.left,bound2.right)&&ismiddle(bound2.left,bound1.right,bound2.right));
-		$("#obj1").append(vr);
 			return vr&&hr;
 		};
 		var collision=0;
@@ -137,7 +136,6 @@
 			down:'s'
 		}
 		ob1=object($("#obj1"),option1);
-		ob1.blink();
 		//setInterval(function(){var k=getbound($("#obj1"));alert(k.right);},2000);
 		ob2=object($("#obj2"),option2);
 		collidermanager(ob1,ob2,function(){ob1.blink();});
@@ -156,15 +154,15 @@
 		left:10px;
 		top: 10px;
 		width: 100px;
-		height: 10px;
+		height: 100px;
 		background-color: red;
 		position: absolute;
 	}
 	#obj2
 	{
-		left:10px;
-		top: 10px;
-		width: 10px;
+		left:150px;
+		top: 250px;
+		width: 100px;
 		height: 100px;
 		background-color: green;
 		position: absolute;
