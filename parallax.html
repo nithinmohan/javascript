@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>CSS Parallax</title>
+<style type="text/css">
+body {
+padding:0px;
+margin:0px;
+}
+.layer {
+position:absolute;
+width:100%;
+height:256px;
+}
+#back {
+background: #3BB9FF url(cloud.png);
+}
+#middle{
+background: transparent url(hill.png);
+}
+#front{
+background: transparent url(grass.png);
+}
+</style>
+<script src="jquery.js"></script>
+<script>
+$(function(){
+	$back=$("#back");
+	$middle=$("#middle");
+	$front=$("#front");
+var $win=$(window),
+speed=0,xPos=0;
+$(document).mousemove(function(e){
+	pageX=e.pageX;
+	winhalfwid=$win.width()/2;
+	speed=(winhalfwid-pageX)/(winhalfwid/1);
+});
+$(document).mouseout(function(){
+	speed=0;
+});
+setInterval(function(){
+	xPos+=speed;
+	$back.css({
+backgroundPosition: xPos + 'px 0px'
+});
+$middle.css({
+backgroundPosition: (xPos * 2) + 'px 0px'
+});
+$front.css({
+backgroundPosition: (xPos * 3) + 'px 0px'
+});
+}, 30);
+});
+</script>
+</head>
+<body>
+<div id = "back" class = "layer"></div>
+<div id = "middle" class = "layer"></div>
+<div id = "front" class = "layer"></div>
+</body>
+</html>

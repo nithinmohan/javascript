@@ -1,0 +1,128 @@
+<html>
+<head>
+	<style type="text/css">
+	body {
+		font-size: 12px;
+		font-family: sans-serif
+	}
+	#pic1
+	{
+		width:250px;
+		height: auto;
+	}
+	</style>
+	<script src="jquery.js"></script>
+	<script>
+// Function to execute a callback when an image has been loaded,
+// either from the network or from the browser cache.
+var loadImage = function ($image, src, callback) {
+// Bind the load event BEFORE setting the src.
+$image.bind("load", function (evt) {
+// Image has loaded, so unbind event and call callback.
+$image.unbind("load");
+callback($image);
+}).each(function () {
+// For Gecko-based browsers, check the complete property,
+// and trigger the event manually if image loaded.
+if ($image[0].complete) {
+	$image.trigger("load");
+}
+});
+// For Webkit browsers, the following line ensures load event fires if
+// image src is the same as last image src. This is done by setting
+// the src to an empty string initially.
+if ($.browser.webkit) {
+	$image.attr('src', '');
+}
+$image.attr('src', src);
+};
+
+// Create a single carousel item.
+var createItem = function ($image, angle, options) {
+var loaded = false, // Flag to indicate image has loaded.
+orgWidth, // Original, unscaled width of image.
+orgHeight, // Original, unscaled height of image.
+$originDiv, // Image is attached to this div.
+// A range used in the scale calculation to ensure
+// the frontmost item has a scale of 1,
+// and the farthest item has a scale as defined
+// in options.minScale.
+sizeRange = (1 - options.minScale) * 0.5,
+// An object to store the public update function.
+that;
+// Make image invisible and
+// set its positioning to absolute.
+$image.css({
+	opacity: 0,
+	position: 'absolute'
+});
+// Create a div element ($originDiv). The image
+// will be attached to it.
+$originDiv = $image.wrap('<div style="position:absolute;">').parent();
+that = {
+	update: function (ang) {
+		var sinVal, scale, x, y;
+// Rotate the item.
+ang += angle;
+// Calculate scale.
+sinVal = Math.sin(ang);
+scale = ((sinVal + 1) * sizeRange) + options.minScale;
+// Calculate position and zIndex of origin div.
+x = ((Math.cos(ang) * options.radiusX) * scale) + options.width / 2;
+y = ((sinVal * options.radiusY) * scale) + options.height / 2;
+$originDiv.css({
+	left: (x >> 0) + 'px',
+	top: (y >> 0) + 'px',
+	zIndex: (scale * 100) >> 0
+});
+// If image has loaded, update its dimensions according to
+// the calculated scale.
+// Position it relative to the origin div, so the
+// origin div is in the center.
+if (loaded) {
+	$image.css({
+		width: (orgWidth * scale) + 'px',
+		height: (orgHeight * scale) + 'px',
+		top: ((-orgHeight * scale) / 2) + 'px',
+		left: ((-orgWidth * scale) / 2) + 'px'
+	});
+}
+}
+};
+loadImage($image, $image.attr('src'), function ($image) {
+	loaded = true;
+// Save the image width and height for the scaling calculations.
+orgWidth = $image.width();
+orgHeight = $image.height();
+// Make the item fade-in.
+$image.animate({
+	opacity: 1
+}, 1000);
+});
+return that;
+};
+
+	$(function(){
+// Create a carousel on all wrapping elements
+// with a class of .carousel.
+var option={radiusX:230, // Horizontal radius.
+radiusY:80, // Vertical radius.
+width:512, // Width of wrapping element.
+height:300, // Height of wrapping element.
+frameRate: 30, // Frame rate in milliseconds.
+rotRate: 5000, // Time it takes for carousel to make one complete rotation.
+minScale:0.60};
+x=0;
+var item=createItem($("#pic2"),40,option); //
+
+setTimeout(function(){item.update(x);x=x+.1;},40);
+$('#pic2').bind('click', function() {
+alert('Pic 2 clicked!');
+});
+});
+</script>
+</head>
+<body>
+<img id="pic2" src="cloud.png" alt="Pic 2"/>
+</body>
+</html>

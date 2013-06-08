@@ -192,3 +192,22 @@ $(document).ready(function() {
 	//	x++;
 	//}, 40);
 //});
+/* the html for this
+body{
+	margin: 0px;
+	padding: 0px;
+}
+#canvas
+{
+	width:500px;
+	height:300px;
+	background-color: black;
+	position: relative;
+}
+.draw-target {
+width:100%;
+height:100%;
+position:relative;
+float:left;
+margin:1px;
+}*?

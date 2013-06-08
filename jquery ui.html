@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>jQuery UI</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!-- jQuery UI font sizes are relative to document's,
+so set a base size here. -->
+<style type="text/css">
+body {
+font-size: 12px;
+font-family: sans-serif
+}
+</style>
+<!-- Load the jQuery UI style sheet. -->
+<link rel="stylesheet" href="
+jquery-ui.css"
+type="text/css" media="all" />
+<!-- Load jQuery. -->
+<script src="jquery.js"></script>
+<!-- Load jQuery UI. -->
+<script src="jquery-ui.min.js"
+type="text/javascript"></script>
+<script>
+// On DOM loaded, initialize a date picker widget on the input element
+// with id of 'datepicker'.
+$(function() {
+$("#datepicker").datepicker();
+});
+</script>
+</head>
+<body>
+<!-- The following input element will be turned into a date picker. -->
+<p>Enter Date: <input type="text" id="datepicker"></p>
+</body>
+</html>

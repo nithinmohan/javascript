@@ -1,0 +1,180 @@
+<html>
+<head>
+	<script src="jquery.js"></script>
+	<script>
+	var keycodes=function()
+	{
+		return {
+			'left':37,
+			'up':38,
+			'right':39,
+			'down':40,
+			'w':87,
+			'a':65,
+			's':83,
+			'd':68
+		};
+	};
+	keycd=keycodes();
+	var keystatus={};
+	var time={};
+	var keyhandler=function(key,funct)
+	{
+		$(document).bind('keydown',function(event){
+			if(event.which==keycd[key] && keystatus[key]==0){
+				keystatus[key]=1;
+				time[key]=setInterval(funct,20);
+			}
+			return false;
+
+		});
+		$(document).bind('keyup',function(event){
+		if(event.which==keycd[key] && keystatus[key]==1){
+			keystatus[key]=0;
+			clearInterval(time[key]);
+		}
+			return false;
+		});
+	};
+	var getbound=function($elem)
+	{
+		return {
+			left:parseInt($elem.css('left')),
+			top:parseInt($elem.css('top')),
+			right:parseInt($elem.css('left'))+parseInt($elem.css('width')),
+			down:parseInt($elem.css('top'))+parseInt($elem.css('height'))
+		}
+	};
+	var collidermanager=function(ob1,ob2,callback){
+		$elem1=ob1.elem;
+		$elem2=ob2.elem;
+		var ismiddle=function(var1,var2,var3){
+		return ((var1<=var2)&&(var2<=var3));
+		};
+			var iscolliding=function(){
+			var bound1=getbound($elem1);
+			var bound2=getbound($elem2);
+				vr=ismiddle(bound1.top,bound2.top,bound1.down)||ismiddle(bound1.top,bound2.down,bound1.down)||(ismiddle(bound2.top,bound1.top,bound2.down)&&ismiddle(bound2.top,bound1.down,bound2.down));
+				hr=ismiddle(bound1.left,bound2.left,bound1.right)||ismiddle(bound1.left,bound2.right,bound1.right)||(ismiddle(bound2.left,bound1.left,bound2.right)&&ismiddle(bound2.left,bound1.right,bound2.right));
+		$("#obj1").append(vr);
+			return vr&&hr;
+		};
+		var collision=0;
+		setInterval(function(){
+			if(iscolliding()&&collision==0)
+			{
+				collision=1;
+				callback(ob1,ob2);
+			}
+			else if(!iscolliding())
+				collision=0;
+			},1);
+	}
+	var object=function($elem,option)
+	{
+		keystatus[option.left]=0;
+		keystatus[option.right]=0;
+		keystatus[option.up]=0;
+		keystatus[option.down]=0;
+
+		time[option.down]=0;
+		time[option.right]=0;
+		time[option.up]=0;
+		time[option.left]=0;
+		x=0
+		//keys=options.keys;
+		var up=function()
+		{
+
+			$elem.css({top:"-=5"});
+			//$elem.attr('top',top+1);
+		};
+		var down=function()
+		{
+			$elem.css({top:"+=5"});
+		};
+		var left=function()
+		{
+			$elem.css({left:"-=5"});
+		};
+		var right=function()
+		{
+			$elem.css({left:"+=5"});
+		};
+		keyhandler(option.up,up);
+		keyhandler(option.down,down);
+		keyhandler(option.right,right);
+		keyhandler(option.left,left);
+		var that={
+			blink:function()
+			{
+				var x=0;
+				blnk=setInterval(function(){
+					if(x<5 && x%2==0)
+					$elem.css({opacity:0});
+					else if(x<5 && x%2==1)
+					$elem.css({opacity:1});
+					else
+						clearInterval(blnk);
+					x++;
+				},200);
+			},
+			elem:$elem
+		};
+		return that;
+	};
+	$(function(){
+		var option1={
+			left:'left',
+			right:'right',
+			up:'up',
+			down:'down'
+		};
+		var option2={
+			left:'a',
+			right:'d',
+			up:'w',
+			down:'s'
+		}
+		ob1=object($("#obj1"),option1);
+		ob1.blink();
+		//setInterval(function(){var k=getbound($("#obj1"));alert(k.right);},2000);
+		ob2=object($("#obj2"),option2);
+		collidermanager(ob1,ob2,function(){ob1.blink();});
+	});
+	</script>
+	<style>
+	#arena
+	{
+		background-color: grey;
+		width: 600px;
+		height: 300px;
+		overflow: hidden;
+	}
+	#obj1
+	{
+		left:10px;
+		top: 10px;
+		width: 100px;
+		height: 10px;
+		background-color: red;
+		position: absolute;
+	}
+	#obj2
+	{
+		left:10px;
+		top: 10px;
+		width: 10px;
+		height: 100px;
+		background-color: green;
+		position: absolute;
+	}
+	</style>
+</head>
+<body>
+	<div id="arena">
+<div id="obj1"></div>
+<div id="obj2"></div>
+</div>
+</body>
+</html>
