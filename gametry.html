@@ -15,6 +15,15 @@
 			'd':68
 		};
 	};
+	var pasused=function()
+	{
+		return {
+			left:0,
+			right:0,
+			up:0,
+			down:0
+		};
+	}
 	keycd=keycodes();
 	var keystatus={};
 	var time={};
@@ -29,10 +38,10 @@
 
 		});
 		$(document).bind('keyup',function(event){
-		if(event.which==keycd[key] && keystatus[key]==1){
-			keystatus[key]=0;
-			clearInterval(time[key]);
-		}
+			if(event.which==keycd[key] && keystatus[key]==1){
+				keystatus[key]=0;
+				clearInterval(time[key]);
+			}
 			return false;
 		});
 	};
@@ -46,31 +55,55 @@
 		}
 	};
 	var collidermanager=function(ob1,ob2,callback){
-		$elem1=ob1.elem;
-		$elem2=ob2.elem;
+		var $elem1=ob1.elem,
+		$elem2=ob2.elem,
+		vrold=false,hrold=false;
+			var cause;
+
 		var ismiddle=function(var1,var2,var3){
-		return ((var1<=var2)&&(var2<=var3));
+			return ((var1<=var2)&&(var2<=var3));
 		};
-			var iscolliding=function(){
+		var iscolliding=function(){
 			var bound1=getbound($elem1);
 			var bound2=getbound($elem2);
-				vr=ismiddle(bound1.top,bound2.top,bound1.down)||ismiddle(bound1.top,bound2.down,bound1.down)||(ismiddle(bound2.top,bound1.top,bound2.down)&&ismiddle(bound2.top,bound1.down,bound2.down));
-				hr=ismiddle(bound1.left,bound2.left,bound1.right)||ismiddle(bound1.left,bound2.right,bound1.right)||(ismiddle(bound2.left,bound1.left,bound2.right)&&ismiddle(bound2.left,bound1.right,bound2.right));
-			return vr&&hr;
+			var	vr=ismiddle(bound1.top,bound2.top,bound1.down)||ismiddle(bound1.top,bound2.down,bound1.down)||(ismiddle(bound2.top,bound1.top,bound2.down)&&ismiddle(bound2.top,bound1.down,bound2.down));
+			var	hr=ismiddle(bound1.left,bound2.left,bound1.right)||ismiddle(bound1.left,bound2.right,bound1.right)||(ismiddle(bound2.left,bound1.left,bound2.right)&&ismiddle(bound2.left,bound1.right,bound2.right));
+			vrold=vr;
+			hrold=hr;
+			if(vr&&hr)
+					{
+						if(vr==true&&vrold==false)
+							cause='hor';
+						else if(hr==true && hrold==false)
+							cause='vir';
+						//alert(cause)
+					}
+			else 
+						cause="already";
+			var that=
+			{
+				status:vr&&hr,
+				causeis:cause
+				};
+				return that;
 		};
 		var collision=0;
 		setInterval(function(){
-			if(iscolliding()&&collision==0)
+			var that=iscolliding();
+			if(that.status&&collision==0)
 			{
 				collision=1;
+				//alert(that.causeis);
 				callback(ob1,ob2);
 			}
 			else if(!iscolliding())
 				collision=0;
-			},1);
+		},1);
 	}
-	var object=function($elem,option)
+	var object=function(option)
 	{
+		$arena=option.arena;
+		var $elem=$arena.append("<div class='obj' style='position:absolute;width:"+option.style.width+"px;height:"+option.style.height+"px;top:"+option.style.top+"px;left:"+option.style.left+"px;background-color:"+option.style.color+"'/>").find(':last');
 		keystatus[option.left]=0;
 		keystatus[option.right]=0;
 		keystatus[option.up]=0;
@@ -81,98 +114,123 @@
 		time[option.up]=0;
 		time[option.left]=0;
 		x=0
-		//keys=options.keys;
-		var up=function()
-		{
+		$arena=option.arena;
+//keys=options.keys;
+var up=function()
+{
 
-			$elem.css({top:"-=5"});
-			//$elem.attr('top',top+1);
-		};
-		var down=function()
-		{
-			$elem.css({top:"+=5"});
-		};
-		var left=function()
-		{
-			$elem.css({left:"-=5"});
-		};
-		var right=function()
-		{
-			$elem.css({left:"+=5"});
-		};
-		keyhandler(option.up,up);
-		keyhandler(option.down,down);
-		keyhandler(option.right,right);
-		keyhandler(option.left,left);
-		var that={
-			blink:function()
-			{
-				var x=0;
-				blnk=setInterval(function(){
-					if(x<5 && x%2==0)
-					$elem.css({opacity:0});
-					else if(x<5 && x%2==1)
-					$elem.css({opacity:1});
-					else
-						clearInterval(blnk);
-					x++;
-				},200);
-			},
-			elem:$elem
-		};
-		return that;
+	$elem.css({top:"-=5"});
+//$elem.attr('top',top+1);
+};
+var down=function()
+{
+	$elem.css({top:"+=5"});
+};
+var left=function()
+{
+	$elem.css({left:"-=5"});
+};
+var right=function()
+{
+	$elem.css({left:"+=5"});
+};
+keyhandler(option.up,up);
+keyhandler(option.down,down);
+keyhandler(option.right,right);
+keyhandler(option.left,left);
+	
+	var firebolt=function(width,height,color)
+	{
+	var fleft=parseInt($elem.css('left'))+$elem.width()/2-width/2;
+	var ftop=parseInt($elem.css('top'))+$elem.height()/2-height/2;
+	var bolt=$arena.append("<div class='firebolt' style='position:absolute;width:"+width+"px;height:"+height+"px;top:"+ftop+"px;left:"+fleft+"px;background-color:"+color+"'/>").find(':last');
+	return bolt;
 	};
-	$(function(){
-		var option1={
-			left:'left',
-			right:'right',
-			up:'up',
-			down:'down'
-		};
-		var option2={
-			left:'a',
-			right:'d',
-			up:'w',
-			down:'s'
+	var firethis=function($firebolt,dir,time)
+	{
+		$firebolt.css({left:""});
+		$firebolt.animate({'right':"0px"},time);
+	}
+var that={
+	blink:function()
+	{
+		var x=0;
+		blnk=setInterval(function(){
+			if(x<5 && x%2==0)
+				$elem.css({opacity:0});
+			else if(x<5 && x%2==1)
+				$elem.css({opacity:1});
+			else
+				clearInterval(blnk);
+			x++;
+		},200);
+	},
+	elem:$elem,
+	fire:function(dir,speed)
+	{
+	var bolt=firebolt(10,10,'black');
+	firethis(bolt,'left',10000);
+	}
+	
+};
+return that;
+};
+$(function(){
+	var option1={
+		left:'left',
+		right:'right',
+		up:'up',
+		down:'down',
+		arena:$("#arena"),
+		style:{
+			left:120,
+			top:200,
+			width:100,
+			height:50,
+			color:'red'
 		}
-		ob1=object($("#obj1"),option1);
-		//setInterval(function(){var k=getbound($("#obj1"));alert(k.right);},2000);
-		ob2=object($("#obj2"),option2);
-		collidermanager(ob1,ob2,function(){ob1.blink();});
-	});
-	</script>
-	<style>
-	#arena
-	{
-		background-color: grey;
-		width: 600px;
-		height: 300px;
-		overflow: hidden;
-	}
-	#obj1
-	{
-		left:10px;
-		top: 10px;
-		width: 100px;
-		height: 100px;
-		background-color: red;
-		position: absolute;
-	}
-	#obj2
-	{
-		left:150px;
-		top: 250px;
-		width: 100px;
-		height: 100px;
-		background-color: green;
-		position: absolute;
-	}
-	</style>
+	};
+	var option2={
+		left:'a',
+		right:'d',
+		up:'w',
+		down:'s',
+		arena:$("#arena"),
+		style:{
+			left:180,
+			top:50,
+			width:50,
+			height:50,
+			color:'green'
+		}
+	};
+	ob1=object(option1);
+	ob2=object(option2);
+
+//setInterval(function(){var k=getbound($("#obj1"));alert(k.right);},2000);
+//ob2=object($("#obj2"),option2);
+collidermanager(ob1,ob2,function(){ob1.blink();});
+ob1.fire();
+ob2.fire();
+});
+</script>
+<style>
+#arena
+{
+	background-color: grey;
+	width: 600px;
+	height: 300px;
+	overflow: hidden;
+}
+.obj
+{
+	position: absolute;
+}
+
+</style>
 </head>
 <body>
 	<div id="arena">
-<div id="obj1"></div>
-<div id="obj2"></div>
-</div>
+	</div>
 </body>
 </html>
