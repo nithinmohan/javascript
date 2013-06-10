@@ -15,15 +15,7 @@
 			'd':68
 		};
 	};
-	var pasused=function()
-	{
-		return {
-			left:0,
-			right:0,
-			up:0,
-			down:0
-		};
-	}
+	
 	keycd=keycodes();
 	var keystatus={};
 	var time={};
@@ -55,8 +47,10 @@
 		}
 	};
 	var collidermanager=function(ob1,ob2,callback){
-		var $elem1=ob1.elem,
-		$elem2=ob2.elem,
+		$elem1=ob1;
+		if(ob1.elem!=undefined)
+		var $elem1=ob1.elem;
+		var $elem2=ob2.elem,
 		vrold=false,hrold=false;
 			var cause;
 
@@ -88,7 +82,7 @@
 				return that;
 		};
 		var collision=0;
-		setInterval(function(){
+		var timer=setInterval(function(){
 			var that=iscolliding();
 			if(that.status&&collision==0)
 			{
@@ -99,6 +93,12 @@
 			else if(!iscolliding())
 				collision=0;
 		},1);
+		return {
+			clear:function()
+			{
+				clearInterval(timer);
+			}
+		}
 	}
 	var object=function(option)
 	{
@@ -148,8 +148,7 @@ keyhandler(option.left,left);
 	};
 	var firethis=function($firebolt,dir,time)
 	{
-		$firebolt.css({left:""});
-		$firebolt.animate({'right':"0px"},time);
+		$firebolt.animate({'left':"0px"},time);
 	}
 var that={
 	blink:function()
@@ -169,7 +168,8 @@ var that={
 	fire:function(dir,speed)
 	{
 	var bolt=firebolt(10,10,'black');
-	firethis(bolt,'left',10000);
+	firethis(bolt,'left',1000);
+	return bolt;
 	}
 	
 };
@@ -209,9 +209,22 @@ $(function(){
 
 //setInterval(function(){var k=getbound($("#obj1"));alert(k.right);},2000);
 //ob2=object($("#obj2"),option2);
-collidermanager(ob1,ob2,function(){ob1.blink();});
-ob1.fire();
-ob2.fire();
+//collidermanager(ob1,ob2,function(){ob1.blink();});
+$(document).bind("keydown",function(event){
+	if(event.which==191)
+	{
+	var bolt=ob1.fire();
+	cm1=collidermanager(bolt,ob2,function(){ob2 .blink();});
+	bolt.timer=setInterval(function(){cm1.clear();bolt.remove();clearInterval(bolt.timer);},4000);
+}
+	else if(event.which==69)
+	{
+		var bolt=ob2.fire();
+	cm2=collidermanager(bolt,ob1,function(){ob1 .blink();});
+	bolt.timer=setInterval(function(){cm2.clear();bolt.remove();clearInterval(bolt.timer);},4000);
+	}
+		return false;
+});
 });
 </script>
 <style>
