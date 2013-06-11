@@ -93,10 +93,11 @@
 			else if(!iscolliding())
 				collision=0;
 		},1);
+				
 		return {
 			clear:function()
 			{
-				clearInterval(timer);
+			clearInterval(timer);
 			}
 		}
 	}
@@ -165,10 +166,12 @@ var that={
 		},200);
 	},
 	elem:$elem,
-	fire:function(dir,speed)
+	fire:function(ob2)
 	{
 	var bolt=firebolt(10,10,'black');
 	firethis(bolt,'left',1000);
+	var	cm1=collidermanager(bolt,ob2,function(){ob2.blink();var btimer=setInterval(function(){ob2.elem.remove();clearInterval(btimer);},1000);});
+	var timer=setInterval(function(){cm1.clear();bolt.remove();clearInterval(timer);},4000);
 	return bolt;
 	}
 	
@@ -213,15 +216,11 @@ $(function(){
 $(document).bind("keydown",function(event){
 	if(event.which==191)
 	{
-	var bolt=ob1.fire();
-	cm1=collidermanager(bolt,ob2,function(){ob2 .blink();});
-	bolt.timer=setInterval(function(){cm1.clear();bolt.remove();clearInterval(bolt.timer);},4000);
+	var bolt=ob1.fire(ob2);
 }
 	else if(event.which==69)
 	{
-		var bolt=ob2.fire();
-	cm2=collidermanager(bolt,ob1,function(){ob1 .blink();});
-	bolt.timer=setInterval(function(){cm2.clear();bolt.remove();clearInterval(bolt.timer);},4000);
+		var bolt=ob2.fire(ob1);
 	}
 		return false;
 });
