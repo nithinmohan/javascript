@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript"
+src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+</script>
+<script type="text/javascript"
+src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js">
+</script>
+<script type="text/javascript">
+$(function() {
+var canvas = document.getElementById('mycanvas');
+var ctx = canvas.getContext('2d');
+ctx.fillStyle="rgb(0,0,255)";
+var p=0;
+setInterval(function(){
+p++;
+ctx.clearRect(p-1,p-1,50,50);
+ctx.fillRect(p,p,50,50)
+if(p>500)
+	p=-50;
+},5);
+});
+</script>
+<style type="text/css">
+.dragger {width:10px; height:10px;z-index:1}
+#mycanvas {border:1px solid;position:absolute;top:0px;}
+</style>
+</head>
+<body style="position:relative;">
+
+<canvas id="mycanvas" width=500, height=500>
+</canvas>
+</body>
+</html>

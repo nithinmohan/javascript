@@ -121,6 +121,7 @@ var ctrlSprite=function(params){
 };
 
 $(document).ready(function() {
+	
 	var params={
 		images:"sprite.png",
 		imagesWidth:256,

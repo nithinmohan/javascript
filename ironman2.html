@@ -1,0 +1,63 @@
+<html>
+<head>
+	<script src="jquery.js"></script>
+	<script>
+	var arc=function($arc,centerx,centery,dist,angle1){
+		var angle=angle1;
+		var originx,originy;
+
+
+		var that={
+		distdraw:function(dist){
+		var distcos=Math.cos(angle)*dist;
+		var distsin=Math.sin(angle)*dist;
+			$arc.css({left:centerx+distcos+"px",top:centery-distsin-$arc.height()/2+"px"});},
+		center:function(centerx,centery){originx=centerx-$arc.position().left;
+		originy=centery-$arc.position().top;
+	},
+   rotate:function(angle1) {
+    	angle=angle1;
+        $arc.css({
+            '-webkit-transform-origin': originx+'px '+originy+'px',
+            WebkitTransform: 'rotate(' + angle + 'deg)'
+        });
+        $arc.css({
+            '-moz-transform': 'rotate(' + angle + 'deg)'
+        });
+      timer = setTimeout(function () {
+          that.rotate(angle+.2);
+       }, 10);
+	}
+};
+		that.distdraw(dist);
+		that.center(centerx,centery);
+		that.rotate(45);
+	};
+
+	$(function () {
+    var $elie = $(".part");
+    arc($elie,600,200,0,30);
+   // rotate(0);
+
+    
+});
+	</script>
+</head>
+<style>
+.circle {
+	width: 357px;
+    height: 357px;
+}
+#part1
+{
+position:absolute;
+height:300px;
+width:300px;
+background-image: url(arc.png);
+		 background-size: 100% 100%;
+}
+</style>
+<body>
+	<div class="part " id="part1"/>
+</body>
+</html>

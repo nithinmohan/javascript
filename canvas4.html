@@ -1,0 +1,324 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript"
+src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+</script>
+<script type="text/javascript"> jQuery( function($) {
+var ctx = $('#the-canvas')[0].getContext('2d');
+var camera = function () {
+var camDist, camY;
+return {
+setFOVandYPos: function (angle, y) {
+camY = y;
+angle *= (Math.PI / 180);
+camDist = (ctx.canvas.width * 0.5) / Math.tan(angle * 0.5);
+},
+worldToScreen: function (x, y, z) {
+return {
+sx: (camDist * x) / z,
+sy: (camDist * (y - camY)) / z,
+scale: (camDist / z)
+};
+},
+screenToWorld: function (sx, sy) {
+sx -= ctx.canvas.width / 2;
+sy -= ctx.canvas.height / 2;
+var wz = (-camY / sy) * camDist;
+return {
+wx: (sx / camDist * wz).toFixed(3),
+wy: (sy / camDist * wz).toFixed(3),
+wz: wz.toFixed(3)
+};
+}
+};
+}();
+var avatar = function (color) {
+var that = {},
+destX = 0,
+destZ = 0,
+x = 0,
+z = 0,
+textX, avatarHW = 40.5,
+avatarH = 106,
+outlineColor = color.substr(1),
+gradient1, gradient2;
+outlineColor = (parseInt(outlineColor, 16) & 0xfefefe) >> 1;
+outlineColor = '#' + outlineColor.toString(16);
+gradient1 = ctx.createRadialGradient(37.7, 55.6, 0.0, 37.7, 55.6, 46.1);
+gradient1.addColorStop(0.00, "#fff");
+gradient1.addColorStop(1.00, color);
+gradient2 = ctx.createRadialGradient(37.6, 15.3, 0.0, 37.6, 15.3, 31.1);
+gradient2.addColorStop(0.00, "#fff");
+gradient2.addColorStop(1.00, color);
+that.remove = false;
+that.setDest = function (dstX, dstZ) {
+destX = dstX;
+destZ = dstZ;
+};
+that.getZ = function () {
+return z;
+};
+that.getTextX = function () {
+return textX;
+};
+that.move = function (coeff) {
+var vx = destX - x,
+vz = destZ - z,
+dist = Math.sqrt(vx * vx + vz * vz),
+p, x1, y1;
+// Normalize (make unit length) the vector from old pos to new pos.
+if (dist) {
+vx /= dist;
+vz /= dist;
+}
+// Apply the vector capped to a maximum of 4 units.
+if (dist > 4) {
+dist = 4;
+}
+x += vx * (dist * coeff);
+z += vz * (dist * coeff);
+p = camera.worldToScreen(x - avatarHW, -avatarH, z);
+textX = p.sx + (avatarHW * p.scale) + (ctx.canvas.width / 2);
+// Draw the body.
+ctx.save();
+ctx.translate(p.sx + (ctx.canvas.width / 2), p.sy + (ctx.canvas.height / 2));
+ctx.scale(p.scale, p.scale);
+ctx.beginPath();
+ctx.moveTo(73.1, 83.6);
+ctx.bezierCurveTo(71.7, 102.1, 52.2, 105.2, 37.4, 105.2);
+ctx.bezierCurveTo(22.5, 105.2, 3.0, 102.1, 1.6, 83.6);
+ctx.bezierCurveTo(0.1, 62.7, 14.0, 35.3, 37.4, 35.3);
+ctx.bezierCurveTo(60.8, 35.3, 74.7, 62.7, 73.1, 83.6);
+ctx.closePath();
+ctx.fillStyle = gradient1;
+ctx.fill();
+ctx.lineWidth = 2.0;
+ctx.lineJoin = "miter";
+ctx.miterLimit = 4.0;
+ctx.strokeStyle = outlineColor;
+ctx.stroke();
+// Draw the head.
+ctx.beginPath();
+ctx.moveTo(61.2, 25.3);
+ctx.bezierCurveTo(61.2, 38.4, 50.5, 49.1, 37.4, 49.1);
+ctx.bezierCurveTo(24.2, 49.1, 13.6, 38.4, 13.6, 25.3);
+ctx.bezierCurveTo(13.6, 12.1, 24.2, 1.5, 37.4, 1.5);
+ctx.bezierCurveTo(50.5, 1.5, 61.2, 12.1, 61.2, 25.3);
+ctx.closePath();
+ctx.fillStyle = gradient2;
+ctx.fill();
+ctx.strokeStyle = outlineColor;
+ctx.stroke();
+ctx.restore();
+};
+return that;
+};
+var textScroller = function () {
+var textList = [];
+return {
+addText: function (text, x, color) {
+if (textList.length > 5) {
+textList.splice(0, 1);
+}
+textList.push({
+text: text,
+x: x,
+color: color
+});
+},
+drawText: function () {
+var y = (ctx.canvas.height / 2) - 16,
+tx, w, x1, y1, w1, i;
+ctx.font = "bold 14px sans-serif";
+ctx.fillStyle = '#000';
+for (i = textList.length - 1; i > −1; i--) {
+tx = textList[i];
+w = ctx.measureText(tx.text).width / 2;
+ctx.beginPath();
+y1 = y - 17;
+x1 = tx.x - 2; // Same as stroke width.
+w1 = w + 16;
+// Begin in middle of top.
+ctx.moveTo(x1, y1);
+// Top and upper-right corner.
+ctx.arcTo(x1 + w1, y1, x1 + w1, y1 + 24, 10);
+// Right and lower-right corner.
+ctx.arcTo(x1 + w1, y1 + 24, x1 - w1 - 10, y1 + 24, 10);
+// Bottom and lower-left corner.
+ctx.arcTo(x1 - w1, y1 + 24, x1 - w1, y1, 10);
+// Left and upper-left corner.
+ctx.arcTo(x1 - w1, y1, x1 + w1, y1, 10);
+ctx.closePath();
+ctx.fillStyle = 'white';
+ctx.fill();
+ctx.lineWidth = 2;
+ctx.strokeStyle = tx.color;
+ctx.stroke();
+ctx.fillStyle = 'black';
+ctx.fillText(tx.text, x1 - w, y);
+y -= 28;
+}
+}
+};
+}();
+var drawBackground = function () {
+var linGrad = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+linGrad.addColorStop(0, '#00BFFF');
+linGrad.addColorStop(0.5, 'white');
+linGrad.addColorStop(0.5, '#55dd00');
+linGrad.addColorStop(1, 'white');
+return function () {
+ctx.fillStyle = linGrad;
+ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+};
+}();
+var initAndGo = function () {
+// Set the field of view and camera vertical position.
+camera.setFOVandYPos(125, −128);
+// Socket server is running on the local machine
+//on port 8999.
+var host = "ws://127.0.0.1:8999",
+socket, avatarList = [];
+// The send function transmits an arbitrary number of arguments to the
+// server.
+var send = function () {
+var data = '';
+for (var i = 0; i < arguments.length; i++) {
+data += arguments[i] + ',';
+}
+socket.send(data);
+};
+try {
+socket = new WebSocket(host);
+// When the socket connects, it creates a new avatar in a random color.
+// It also sets the border color around the text input area.
+socket.onopen = function (msg) {
+// Random color for avatar.
+var rColor = Math.round(0xffffff * Math.random());
+rColor = ('#0' + rColor.toString(16)).
+replace(/^#0([0-9a-f]{6})$/i, '#$1');
+send('CONNECT', rColor, 250);
+$('#text-input').css({
+border: "2px solid " + rColor,
+color: rColor
+});
+};
+socket.onmessage = function (msg) {
+if (msg.data) {
+var textData = msg.data,
+data;
+// Parse the returned socket data into a JavaScript object
+// via JSON.
+textData = textData.replace(/[\x00-\x1f]/, '');
+data = $.parseJSON(textData);
+for (var userId in data) {
+if (avatarList[userId] === undefined) {
+// Initialize a new avatar if the the userId doesn't
+// yet exist in the avatarList[].
+avatarList[userId] = avatar(data[userId].colr);
+}
+if (data[userId].pos !== undefined) {
+// Update avatar's destination x and z positions.
+var pos = data[userId].pos.split(',');
+avatarList[userId].setDest(pos[0], pos[1]);
+}
+if (data[userId].chattext !== undefined) {
+// Add chat text if present in data.
+textScroller.addText(unescape(data[userId].chattext),
+avatarList[userId].getTextX(), data[userId].colr);
+}
+if (data[userId].disconnect) {
+// Flag avatar for removal if the server says so.
+avatarList[userId].remove = true;
+}
+}
+}
+};
+} catch (ex) {
+alert('Socket error: ' + ex);
+}
+// Stop text input losing focus when clicking on canvas.
+$('#the-canvas').bind('mousedown', this, function (event) {
+return false;
+});
+// Get clicks on canvas and convert to world coordinates.
+// Send these coordinates back to the server.
+$(ctx.canvas).bind('click', function (evt) {
+var canvas, bb, mx, my, p;
+canvas = ctx.canvas;
+// Get canvas size and position
+bb = canvas.getBoundingClientRect();
+// Convert mouse event coordinates to canvas coordinates
+mx = (evt.clientX - bb.left) * (canvas.width / bb.width);
+my = (evt.clientY - bb.top) * (canvas.height / bb.height);
+// Stop avatars going too far back.
+if (my < canvas.height / 2 + 32) {
+return;
+}
+p = camera.screenToWorld(mx, my);
+send('UPDATE', p.wx, p.wz);
+});
+// Get key presses and send chat text to server if return key is pressed.
+// The text is escaped to ensure correct transmission.
+$(window).bind('keypress', function (evt) {
+if (evt.which == 13) {
+send('CHATTEXT', escape($('#text-input').val()));
+$('#text-input').val('');
+}
+});
+var oldTime = new Date().getTime();
+// The main loop is executed via setInterval at 20-millisecond intervals.
+setInterval(function () {
+var newTime = new Date().getTime(),
+elapsed = newTime - oldTime,
+i = 0,
+avatarListNew = [],
+sortList = [],
+// Work out a coefficient of movement based on elapsed time
+// to ensure consistent speed across different browsers and hardware.
+coeff = elapsed / 20;
+oldTime = newTime;
+// Draw the background. There is no need to erase
+// the canvas first, as the background completely fills it.
+drawBackground();
+// Place non-removed avatars into sortlist ready for drawing.
+// Also place them in avatarListNew.
+for (var av in avatarList) {
+if (!avatarList[av].remove) {
+sortList[i++] = avatarListNew[av] = avatarList[av];
+}
+}
+// Sort the list into z-order.
+sortList.sort(function (a, b) {
+return b.getZ() - a.getZ();
+});
+// Move the avatars.
+for (i = 0; i < sortList.length; i++) {
+sortList[i].move(coeff);
+}
+// avatarListNew now becomes our current avatar list.
+// It does not contain removed avatars.
+avatarList = avatarListNew;
+// Finally, draw all the chat text.
+textScroller.drawText();
+}, 20);
+}();
+</script>
+<style type="text/css">
+body {font-family: sans-serif}
+#text-input {font-size:16px;}
+#the-canvas {border:1px solid;}
+</style>
+</head>
+<body>
+<canvas id="the-canvas" width='512' height='384'>
+</canvas>
+<p>
+<label for='text-input'>
+Chat:
+</label>
+<input id='text-input' />
+</p>
+</body>
+</html>

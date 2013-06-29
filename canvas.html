@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript"
+src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">
+</script>
+<script type="text/javascript"
+src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js">
+</script>
+<script type="text/javascript">
+$(function() {
+var canvas = document.getElementById('mycanvas');
+var ctx = canvas.getContext('2d');
+$('.dragger').draggable({
+cursor: 'crosshair'
+});
+// Trapping the 'mousedown' event and returning false
+// prevents the text select caret from appearing.
+$('.dragger').bind("mousedown", function() {
+return false;
+});
+$('.dragger').bind("drag", function() {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+var canvasX = $(canvas).position().left,
+canvasY = $(canvas).position().top,
+cpx1, cpy1, cpx2, cpy2, $dragr = $('#dragger1');
+// The control point positions are made relative to the canvas,
+// although this calculation is not strictly necessary for
+// this demonstration, as the canvas is in the top-left of the
+// page.
+cpx1 = $dragr.position().left - canvasX;
+cpy1 = $dragr.position().top - canvasY;
+// Draw the quadratic curve (one control point).
+ctx.beginPath();
+ctx.moveTo(50, 150);
+ctx.quadraticCurveTo(cpx1, cpy1, 450, 150);
+ctx.closePath();
+ctx.stroke();
+// Get the position of the other two control points.
+$dragr = $('#dragger2');
+cpx1 = $dragr.position().left - canvasX;
+cpy1 = $dragr.position().top - canvasY;
+$dragr = $('#dragger3');
+cpx2 = $dragr.position().left - canvasX;
+cpy2 = $dragr.position().top - canvasY;
+// Draw the Bezier curve (two control points).
+ctx.beginPath();
+ctx.moveTo(50, 350);
+ctx.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, 450, 350);
+ctx.closePath();
+ctx.stroke();
+ var imageObj = new Image();
+
+      imageObj.onload = function() {
+        ctx.drawImage(imageObj, 69, 50);
+      };
+      imageObj.src = 'hill.png';
+    
+});
+// Trigger an initial drag event so the curves are drawn.
+$('.dragger').trigger("drag");
+});
+
+
+</script>
+<style type="text/css">
+.dragger {width:10px; height:10px;z-index:1}
+#mycanvas {border:1px solid;position:absolute;top:0px;}
+</style>
+</head>
+<body style="position:relative;">
+<div class="dragger" id="dragger1" style="background-color:#f00;">
+</div>
+<div class="dragger" id="dragger2" style="background-color:#0f0;">
+</div>
+<div class="dragger" id="dragger3" style="background-color:#00f;">
+</div>
+<canvas id="mycanvas" width=500, height=500>
+</canvas>
+</body>
+</html>

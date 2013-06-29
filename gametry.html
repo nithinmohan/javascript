@@ -104,7 +104,7 @@
 	var object=function(option)
 	{
 		$arena=option.arena;
-		var $elem=$arena.append("<div class='obj' style='position:absolute;width:"+option.style.width+"px;height:"+option.style.height+"px;top:"+option.style.top+"px;left:"+option.style.left+"px;background-color:"+option.style.color+"'/>").find(':last');
+		var $elem=$arena.append("<div class='obj' style=';background-image:url(\""+option.image+"\");background-size: 100% 100%;position:absolute;width:"+option.style.width+"px;height:"+option.style.height+"px;top:"+option.style.top+"px;left:"+option.style.left+"px"+"'/>").find(':last');
 		keystatus[option.left]=0;
 		keystatus[option.right]=0;
 		keystatus[option.up]=0;
@@ -170,14 +170,30 @@ var that={
 	{
 	var bolt=firebolt(10,10,'black');
 	firethis(bolt,'left',1000);
-	var	cm1=collidermanager(bolt,ob2,function(){ob2.blink();var btimer=setInterval(function(){ob2.elem.remove();clearInterval(btimer);},1000);});
-	var timer=setInterval(function(){cm1.clear();bolt.remove();clearInterval(timer);},4000);
+	var	cm1=collidermanager(bolt,ob2,function(){
+		ob2.blink();
+		bolt.remove();
+		var btimer=setInterval(function(){
+			ob2.elem.remove();
+			clearInterval(btimer);
+		},1000);});
+	var timer=setInterval(function(){cm1.clear();bolt.remove();clearInterval(timer);},1000);
 	return bolt;
 	}
 	
 };
 return that;
 };
+var obstacle=function(option)
+{
+	var width=option.style.width;
+	var height=option.style.height;
+	var left=option.style.left;
+	var top=option.style.top;
+	var color=option.style.color;
+	var $arena=option.arena;
+	var obs=$arena.append("<div class='obstacle' style='position:absolute;width:"+width+"px;height:"+height+"px;top:"+top+"px;left:"+left+"px;background-color:"+color+"'/>").find(':last');
+}
 $(function(){
 	var option1={
 		left:'left',
@@ -185,6 +201,7 @@ $(function(){
 		up:'up',
 		down:'down',
 		arena:$("#arena"),
+		image:'gun.png',
 		style:{
 			left:120,
 			top:200,
@@ -199,6 +216,7 @@ $(function(){
 		up:'w',
 		down:'s',
 		arena:$("#arena"),
+		image:'gun.png',
 		style:{
 			left:180,
 			top:50,
@@ -207,9 +225,19 @@ $(function(){
 			color:'green'
 		}
 	};
+	var boption1={
+		arena:$("#arena"),
+		style:{
+			left:300,
+			top:100,
+			width:10,
+			height:400,
+			color:'brown'
+		}
+	};
 	ob1=object(option1);
 	ob2=object(option2);
-
+	obstacle(boption1);
 //setInterval(function(){var k=getbound($("#obj1"));alert(k.right);},2000);
 //ob2=object($("#obj2"),option2);
 //collidermanager(ob1,ob2,function(){ob1.blink();});
@@ -229,14 +257,14 @@ $(document).bind("keydown",function(event){
 <style>
 #arena
 {
-	background-color: grey;
+	background-color: indigo;
 	width: 600px;
 	height: 300px;
-	overflow: hidden;
 }
 .obj
 {
 	position: absolute;
+	
 }
 
 </style>
